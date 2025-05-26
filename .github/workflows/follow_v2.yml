@@ -16,28 +16,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10.12'
+          python-version: 3.10.12
 
       - name: Install dependencies
         run: pip install selenium
 
-      - name: Install Google Chrome stable
-        run: |
-          sudo apt update
-          sudo apt install -y wget unzip
-          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get install -f -y
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
 
-      - name: Install matching ChromeDriver
-        run: |
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
-          echo "Chrome version: $CHROME_VERSION"
-          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
-          echo "ChromeDriver version: $CHROMEDRIVER_VERSION"
-          wget -q "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" -O chromedriver.zip
-          unzip chromedriver.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
+      - name: Setup ChromeDriver
+        uses: nanasess/setup-chromedriver@v1
+        with:
+          chrome-version: latest
 
       - name: Run bot
         env:
