@@ -3,7 +3,7 @@ name: Follow 25 Users
 on:
   schedule:
     - cron: "0 */6 * * *"  # cada 6 horas
-  workflow_dispatch:      # permite correrlo manualmente
+  workflow_dispatch:
 
 jobs:
   follow:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: 3.10  # ✅ CORREGIDO
 
       - name: Install dependencies
         run: |
