@@ -39,3 +39,11 @@ jobs:
           IG_USER: ${{ secrets.IG_USER }}
           IG_PASS: ${{ secrets.IG_PASS }}
         run: python3 testings.py
+
+      - name: Commit updated seguidores_messi_243.txt
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "bot@users.noreply.github.com"
+          git add seguidores_messi_243.txt
+          git commit -m "Update seguidores file" || echo "No changes to commit"
+          git push
