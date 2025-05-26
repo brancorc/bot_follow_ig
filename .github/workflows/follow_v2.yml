@@ -24,12 +24,11 @@ jobs:
       - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
 
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1
+      - name: Check Chrome version
+        run: google-chrome --version
 
       - name: Setup ChromeDriver
         uses: nanasess/setup-chromedriver@v1
-        # Sin versión explícita, que tome la última compatible
 
       - name: Run bot
         env:
