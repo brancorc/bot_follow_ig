@@ -31,30 +31,64 @@ def login(driver):
 
 def follow_user(driver, profile_url):
     driver.get(profile_url)
-    try:
-        wait = WebDriverWait(driver, 10)
+    print(f"Navegando a: {profile_url}")
 
-        # Espera a que cargue el perfil
-        wait.until(EC.presence_of_element_located((By.XPATH, "//header")))
-
-        # Mostramos todos los botones del perfil
-        buttons = driver.find_elements(By.XPATH, "//button")
-        for btn in buttons:
-            print(f"Botón encontrado: '{btn.text.strip()}'")
-
-        # Intentamos hacer clic al botón que diga "Seguir" o "Follow"
-        for btn in buttons:
-            texto = btn.text.strip().lower()
-            if texto in ['seguir', 'follow']:
-                btn.click()
-                print(f'Seguido: {profile_url}')
-                return True
-
-        print(f"No se encontró botón de seguir visible en {profile_url}")
+    # Espera a que cargue el header del perfil, indicativo de que la página ha cargado
+    if not wait_for_element(driver, By.XPATH, "//header", 20): # Aumentado el timeout
+        print(f"Timeout: No se pudo cargar la cabecera del perfil: {profile_url}")
+        driver.save_screenshot(f"profile_load_failed_{profile_url.split('/')[-2] if profile_url.split('/')[-2] else 'profile'}.png")
         return False
 
+    time.sleep(random.uniform(3, 5)) # Pequeña espera adicional para que todo se asiente
+
+    follow_button = None
+    try:
+        # Intento 1: Selector más específico para botón "Follow" o "Seguir" (considerando variaciones comunes)
+        # Este busca un botón dentro de la sección principal que no sea "Message" o "Contact"
+        # y cuyo texto sea "Follow" o "Seguir".
+        possible_buttons_xpath = (
+            "//div[@role='main']//button[not(contains(.,'Message')) and not(contains(.,'Mensaje')) and not(contains(.,'Contact')) and not(contains(.,'Contacto'))] | "
+            "//header//button[not(contains(.,'Message')) and not(contains(.,'Mensaje')) and not(contains(.,'Contact')) and not(contains(.,'Contacto'))]"
+        )
+        
+        # Esperar a que al menos un botón candidato sea clickeable
+        # WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, possible_buttons_xpath)))
+        
+        all_buttons_in_section = driver.find_elements(By.XPATH, possible_buttons_xpath)
+        print(f"Encontrados {len(all_buttons_in_section)} botones candidatos en {profile_url}")
+
+        for btn in all_buttons_in_section:
+            try:
+                btn_text = btn.text.strip().lower()
+                if btn.is_displayed() and btn.is_enabled() and btn_text in ['follow', 'seguir']:
+                    print(f"Botón candidato: '{btn.text.strip()}' (visible y habilitado)")
+                    follow_button = btn
+                    break # Encontramos nuestro botón
+            except Exception as e_btn_check:
+                print(f"Error al inspeccionar un botón candidato: {repr(e_btn_check)}")
+                continue
+        
+        if follow_button:
+            print(f"Botón de seguir encontrado: '{follow_button.text.strip()}' para {profile_url}. Intentando click.")
+            # A veces es necesario hacer scroll para que el elemento sea clickeable
+            # driver.execute_script("arguments[0].scrollIntoView(true);", follow_button)
+            # time.sleep(0.5)
+            WebDriverWait(driver, 10).until(EC.element_to_be_clickable(follow_button)).click()
+            print(f'Seguido: {profile_url}')
+            time.sleep(random.uniform(2,4)) # Pausa después de seguir
+            return True
+        else:
+            print(f"No se encontró botón de 'Seguir' o 'Follow' activo y visible en {profile_url} con los selectores probados.")
+            driver.save_screenshot(f"no_follow_button_{profile_url.split('/')[-2] if profile_url.split('/')[-2] else 'profile'}.png")
+            return False # No se pudo seguir
+
     except Exception as e:
-        print(f'Error al seguir a {profile_url}: {e}')
+        # Imprimir más detalles de la excepción
+        print(f"Error EXCEPCIÓN al intentar seguir a {profile_url}:")
+        print(f"  Tipo de error: {type(e)}")
+        print(f"  Mensaje (repr): {repr(e)}") # repr(e) a veces da más info que str(e)
+        print(f"  Mensaje (str): {str(e)}")
+        driver.save_screenshot(f"follow_error_{profile_url.split('/')[-2] if profile_url.split('/')[-2] else 'profile'}.png")
         return False
 
 
