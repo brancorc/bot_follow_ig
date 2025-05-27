@@ -6,6 +6,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 import random
 import os
+import uuid
 
 INSTAGRAM_USER = os.environ['IG_USER']
 INSTAGRAM_PASS = os.environ['IG_PASS']
@@ -67,10 +68,21 @@ def remove_first_line(filepath):
         os.remove(filepath)
 
 def main():
+
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
+    
+    options.add_argument('--headless=new') # IMPORTANTE: usa el nuevo modo headless
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-gpu') # A veces ayuda en headless
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
+    options.add_argument("--window-size=1920,1080")
+    
+    # IMPORTANTE: Especificar un directorio de datos de usuario único
+    unique_user_data_dir = f"/tmp/chrome-user-data-{uuid.uuid4()}" # Necesitas 'import uuid' al inicio del script
+    options.add_argument(f"--user-data-dir={unique_user_data_dir}")
+    print(f"Usando directorio de datos de usuario único: {unique_user_data_dir}")
+    
     driver = webdriver.Chrome(options=options)
 
     try:
