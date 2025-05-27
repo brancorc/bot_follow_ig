@@ -89,7 +89,7 @@ def login(driver):
     if not clicked_not_now_notifications:
         click_button_if_present(driver, By.XPATH, "//div[@role='dialog']//button[contains(.,'Ahora no') or contains(.,'Not Now')]")
 
-    if wait_for_element(driver, By.XPATH, "//a[contains(@href,'/explore/')] | //div[@role='banner'] | //nav | //main[@role='main']", 20):
+    if wait_for_element(driver, By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div/div/div/div/div[2]", 20): #espera a que cargue el menu de botones
         print('Login exitoso.')
         return True
     else:
