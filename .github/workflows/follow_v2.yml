@@ -2,31 +2,47 @@ name: Follow 25 Users
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
-  workflow_dispatch:
+    - cron: "0 */6 * * *" # Cada 6 horas
+  workflow_dispatch: # Permite ejecución manual
+
 jobs:
   follow:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Necesario para que el GITHUB_TOKEN pueda hacer push
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Actualizado a v4
 
-      - uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5 # Actualizado a v5
         with:
-          python-version: 3.10.12
+          python-version: '3.10' # Especificar solo la versión mayor.minor es suficiente
 
-      - run: pip install selenium
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium
+          # Si tienes un requirements.txt, es mejor usar:
+          # pip install -r requirements.txt
 
-      - name: Install Chrome
+      - name: Set up Chrome and ChromeDriver # Este paso instala AMBOS
         uses: browser-actions/setup-chrome@v1
-
-      - name: Check Chrome version
-        run: google-chrome --version
-
-      - name: Setup ChromeDriver
-        uses: actions/setup-chromedriver@v1
         with:
-          version: 'latest'
+          chrome-version: stable # Puedes usar 'stable' o una versión específica si la necesitas
+
+      # Este paso es opcional, solo para verificar. Puedes comentarlo o eliminarlo.
+      - name: Check Chrome and ChromeDriver versions
+        run: |
+          google-chrome --version
+          chromedriver --version
+
+      # ELIMINADO EL SIGUIENTE BLOQUE PORQUE browser-actions/setup-chrome@v1 YA LO HACE:
+      # - name: Setup ChromeDriver
+      #   uses: actions/setup-chromedriver@v1 # <-- ESTE ERA EL PROBLEMA
+      #   with:
+      #     version: 'latest'
 
       - name: Run bot
         env:
@@ -34,10 +50,15 @@ jobs:
           IG_PASS: ${{ secrets.IG_PASS }}
         run: python3 testings.py
 
-      - name: Commit updated seguidores_messi_243.txt
+      - name: Commit and push updated seguidores_messi_243.txt
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "bot@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add seguidores_messi_243.txt
-          git commit -m "Update seguidores file" || echo "No changes to commit"
-          git push
+          # Comprobar si hay cambios antes de intentar hacer commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit to seguidores_messi_243.txt"
+          else
+            git commit -m "Update seguidores file (seguidores_messi_243.txt)"
+            git push
+          fi
