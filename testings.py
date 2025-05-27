@@ -12,6 +12,16 @@ INSTAGRAM_USER = os.environ['IG_USER']
 INSTAGRAM_PASS = os.environ['IG_PASS']
 SEGUIDORES_FILE = 'seguidores_messi_243.txt'
 
+def wait_for_element(driver, by, value, timeout=10):
+    """Espera a que un elemento esté presente y visible."""
+    try:
+        return WebDriverWait(driver, timeout).until(
+            EC.visibility_of_element_located((by, value))
+        )
+    except TimeoutException:
+        print(f"Timeout: Elemento no encontrado o no visible: {by}={value}")
+        return None
+
 def login(driver):
 
     driver.get('https://www.instagram.com/accounts/login/')
