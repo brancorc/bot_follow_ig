@@ -10,9 +10,15 @@ import os
 import uuid # Para generar nombres únicos
 
 # --- Configuración ---
+print("INICIO DEL SCRIPT TESTINGS.PY")
+
 INSTAGRAM_USER = os.environ.get('IG_USER')
 INSTAGRAM_PASS = os.environ.get('IG_PASS')
 SEGUIDORES_FILE = 'seguidores_messi_243.txt' # Asegúrate que este es el nombre correcto
+
+print(f"Valor de IG_USER al inicio: '{INSTAGRAM_USER}' (Tipo: {type(INSTAGRAM_USER)})") # Nuevo print
+print(f"Valor de IG_PASS al inicio: '{INSTAGRAM_PASS}' (Tipo: {type(INSTAGRAM_PASS)})") # Nuevo print
+
 MAX_FOLLOWS_PER_RUN = 25 # Puedes ajustar esto
 
 # --- FUNCIONES AUXILIARES (DEFINIRLAS AQUÍ, ANTES DE QUE SE USEN) ---
